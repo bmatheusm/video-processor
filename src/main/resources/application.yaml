@@ -1,3 +1,19 @@
 spring:
   application:
     name: video-processor
+  kafka:
+    bootstrap-servers: localhost:9093
+    consumer:
+      group-id: video-processors
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+  mail: #TODO criar email
+    host: smtp.gmail.com
+    port: 587
+    username: SEU_EMAIL@gmail.com
+    password: SUA_SENHA_OU_APP_PASSWORD
+    properties.mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
