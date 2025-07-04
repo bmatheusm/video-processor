@@ -26,8 +26,9 @@ public class VideoFrameEntity {
     @Column(nullable = false)
     private ProcessorStatus status;
 
-    @Lob
-    private byte[] zipBytes;
+    private String s3VideoId;
+
+    private String email;
 
     @CreationTimestamp
     private LocalDateTime criadoEm;

@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class VideoUploadPayload {
-    private byte[] videoBytes;
+    private String videoId;
     private String videoFileName;
 }

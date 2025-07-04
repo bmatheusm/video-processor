@@ -4,6 +4,7 @@ import com.fiap.video_processor.domain.entities.VideoFrameEntity;
 import com.fiap.video_processor.domain.exceptions.VideoProcessingException;
 import com.fiap.video_processor.infra.enums.ProcessorStatus;
 import com.fiap.video_processor.infra.repository.JpaVideoFrameRepository;
+import com.fiap.video_processor.infra.repository.S3Repository;
 import com.fiap.video_processor.usecase.email.EmailService;
 import com.fiap.video_processor.usecase.processor.VideoProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -30,7 +30,12 @@ public class VideoProcessorImpl implements VideoProcessor {
 
     private final Path uploadsDir = Paths.get("uploads");
     private final Path outputsDir = Paths.get("outputs");
-    private final Path tempDir = Paths.get("temp");
+    private final Path tempDir = Paths.get("tempframes");
+    private final Path tempVideoDir = Paths.get("tempvideo");
+
+
+    @Autowired
+    private S3Repository s3Repository;
 
     @Autowired
     private JpaVideoFrameRepository frameRepository;
@@ -42,24 +47,28 @@ public class VideoProcessorImpl implements VideoProcessor {
         Files.createDirectories(uploadsDir);
         Files.createDirectories(outputsDir);
         Files.createDirectories(tempDir);
+        Files.createDirectories(tempVideoDir);
     }
 
     @Override
-    public void processVideo(File videoFile, String fileName, String email) {
+    public void processVideoFromS3(String videoId, String fileName, String email) {
+
         VideoFrameEntity result = new VideoFrameEntity();
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        Path videoPath = uploadsDir.resolve(fileName);
-        Path workingDir = tempDir.resolve(timestamp);
+        Path workingDir = tempDir.resolve(email + timestamp);
+        Path workingVideoDir = tempVideoDir.resolve(email + timestamp);
         byte[] zipBytes = new byte[0];
         try {
-            this.save(result, fileName, zipBytes, ProcessorStatus.PROCESSING);
+            this.save(result, fileName, videoId, ProcessorStatus.PROCESSING, email);
+
+            Path videoTempPath = s3Repository.downloadToTempFile(videoId, workingVideoDir);
 
             Files.createDirectories(workingDir);
 
             String framePattern = workingDir.resolve("frame_%04d.png").toString();
 
             ProcessBuilder pb = new ProcessBuilder(
-                    "ffmpeg", "-i", videoPath.toString(), "-vf", "fps=1", "-y", framePattern
+                    "ffmpeg", "-i", videoTempPath.toString(), "-vf", "fps=1", "-y", framePattern
             );
             Process process = pb.redirectErrorStream(true).start();
 
@@ -79,23 +88,26 @@ public class VideoProcessorImpl implements VideoProcessor {
             }
 
             zipBytes = createZipFile(frames);
-            this.save(result, fileName, zipBytes, ProcessorStatus.SUCCESS);
+            this.save(result, null, null, ProcessorStatus.SUCCESS, null);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            this.errorHandler(result, fileName, zipBytes, e);
+            this.errorHandler(result, e);
         } catch (Exception e) {
-            this.errorHandler(result, fileName, zipBytes, e);
+            this.errorHandler(result, e);
         } finally {
             FileSystemUtils.deleteRecursively(workingDir.toFile());
+            FileSystemUtils.deleteRecursively(workingVideoDir.toFile());
         }
 
-        this.emailService.sendEmail(email, result.getZipBytes(), result.getNomeArquivo());
+        this.emailService.sendEmail(email, zipBytes, result.getNomeArquivo());
     }
 
-    private void save(VideoFrameEntity result, String fileName, byte[] zipBytes, ProcessorStatus status) {
-        result.setNomeArquivo(fileName + "_frames.zip");
-        result.setZipBytes(zipBytes);
+    private void save(VideoFrameEntity result, String fileName, String videoId, ProcessorStatus status, String email) {
+        if (fileName != null && !fileName.isBlank()) result.setNomeArquivo(fileName + "_frames.zip");
+        if (videoId != null && !videoId.isBlank()) result.setS3VideoId(videoId);
+        if (email != null && !email.isBlank()) result.setEmail(email);
         result.setStatus(status);
+
         frameRepository.save(result);
     }
 
@@ -117,8 +129,8 @@ public class VideoProcessorImpl implements VideoProcessor {
         return baos.toByteArray();
     }
 
-    private void errorHandler(VideoFrameEntity result, String fileName, byte[] zipBytes, Exception e) {
-        this.save(result, fileName, zipBytes, ProcessorStatus.ERROR);
+    private void errorHandler(VideoFrameEntity result, Exception e) {
+        this.save(result, null, null, ProcessorStatus.ERROR, null);
         log.error("Ocorreu um erro no processamento do video {}", e.getMessage());
     }
 }
