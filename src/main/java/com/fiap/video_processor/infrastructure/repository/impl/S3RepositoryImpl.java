@@ -1,6 +1,6 @@
-package com.fiap.video_processor.infra.repository.impl;
+package com.fiap.video_processor.infrastructure.repository.impl;
 
-import com.fiap.video_processor.infra.repository.S3Repository;
+import com.fiap.video_processor.infrastructure.repository.S3Repository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.ResponseTransformer;

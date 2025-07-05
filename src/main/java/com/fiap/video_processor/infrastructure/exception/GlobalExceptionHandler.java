@@ -1,4 +1,4 @@
-package com.fiap.video_processor.infra.exception;
+package com.fiap.video_processor.infrastructure.exception;
 
 import com.fiap.video_processor.domain.exceptions.VideoProcessingException;
 import org.springframework.http.HttpStatus;

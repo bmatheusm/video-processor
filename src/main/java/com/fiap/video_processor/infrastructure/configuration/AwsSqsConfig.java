@@ -5,18 +5,19 @@ import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 @Configuration
-public class AwsS3ClientConfig {
+public class AwsSqsConfig {
 
     @Bean
-    public S3Client s3Client() {
-        AwsCredentialsProvider credentials = EnvironmentVariableCredentialsProvider.create();
+    public SqsClient sqsClient() {
+        AwsCredentialsProvider credentialsProvider = EnvironmentVariableCredentialsProvider.create();
 
-        return S3Client.builder()
+
+        return SqsClient.builder()
+                .credentialsProvider(credentialsProvider)
                 .region(Region.US_EAST_1)
-                .credentialsProvider(credentials)
                 .build();
     }
 }

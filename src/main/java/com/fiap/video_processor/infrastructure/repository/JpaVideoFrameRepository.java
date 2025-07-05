@@ -1,4 +1,4 @@
-package com.fiap.video_processor.infra.repository;
+package com.fiap.video_processor.infrastructure.repository;
 
 import com.fiap.video_processor.domain.entities.VideoFrameEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

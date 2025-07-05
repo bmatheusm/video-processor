@@ -22,12 +22,15 @@ public class EmailServiceImpl implements EmailService {
         try {
             MimeMessage mensagem = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensagem, true);
-
             helper.setTo(para);
             helper.setSubject("Frames extraídos do vídeo");
-            helper.setText("Segue em anexo o arquivo ZIP com os frames extraídos.");
 
-            helper.addAttachment(nomeZip, new ByteArrayResource(zipBytes));
+            if (zipBytes.length > 0) {
+                helper.setText("Segue em anexo o arquivo ZIP com os frames extraídos.");
+                helper.addAttachment(nomeZip, new ByteArrayResource(zipBytes));
+            }else {
+                helper.setText("Ocorreu um erro no processamento do video e não foi possivel extrair os frames");
+            }
 
             mailSender.send(mensagem);
         } catch (MessagingException e) {

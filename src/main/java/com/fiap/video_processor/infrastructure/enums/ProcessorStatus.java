@@ -1,4 +1,4 @@
-package com.fiap.video_processor.infra.enums;
+package com.fiap.video_processor.infrastructure.enums;
 
 public enum ProcessorStatus {
     PROCESSING,

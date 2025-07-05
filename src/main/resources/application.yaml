@@ -13,15 +13,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  kafka:
-    bootstrap-servers: host.docker.internal:29092,host.docker.internal:29094
-    consumer:
-      group-id: video-processors
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: com.fiap.video_processor.infrastructure.dto
-        spring.json.value.default.type: com.fiap.video_processor.infrastructure.dto.VideoUploadPayload
   mail:
     host: smtp.gmail.com
     port: 587
@@ -35,6 +26,8 @@ spring:
             enable: true
 s3:
   bucket: videos-hackaton
-
+sqs:
+  queue:
+    url: https://sqs.us-east-1.amazonaws.com/395368505712/video-processing-queue
 server:
   port: 8090

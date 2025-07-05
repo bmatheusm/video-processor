@@ -1,4 +1,4 @@
-package com.fiap.video_processor.infra.repository;
+package com.fiap.video_processor.infrastructure.repository;
 
 import java.io.IOException;
 import java.nio.file.Path;
