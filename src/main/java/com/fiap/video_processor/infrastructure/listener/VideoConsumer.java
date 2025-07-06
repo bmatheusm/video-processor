@@ -1,11 +1,10 @@
 package com.fiap.video_processor.infrastructure.listener;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.video_processor.infrastructure.dto.VideoUploadPayload;
 import com.fiap.video_processor.usecase.processor.VideoProcessor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,19 +17,20 @@ import java.util.List;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class VideoConsumer {
 
-    @Autowired
-    private VideoProcessor processor;
-
-    @Autowired
-    private SqsClient sqsClient;
-
+    private final VideoProcessor processor;
+    private final SqsClient sqsClient;
     private final ObjectMapper objectMapper;
 
     @Value("${sqs.queue.url}")
     private String queueUrl;
+
+    public VideoConsumer(VideoProcessor processor, SqsClient sqsClient, ObjectMapper objectMapper) {
+        this.processor = processor;
+        this.sqsClient = sqsClient;
+        this.objectMapper = objectMapper;
+    }
 
     @Scheduled(fixedDelay = 5000)
     public void pollMessages() {
@@ -55,7 +55,8 @@ public class VideoConsumer {
                         .queueUrl(queueUrl)
                         .receiptHandle(msg.receiptHandle())
                         .build());
-
+            } catch (JsonParseException e) {
+                log.warn("Erro ao deserializar mensagem, body: {}", msg.body(), e);
             } catch (Exception e) {
                 log.error("Ocorreu um erro ao processar um video: {}", e.getMessage());
             }

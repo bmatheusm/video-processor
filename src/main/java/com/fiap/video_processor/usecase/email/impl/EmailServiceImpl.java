@@ -27,14 +27,15 @@ public class EmailServiceImpl implements EmailService {
 
             if (zipBytes.length > 0) {
                 helper.setText("Segue em anexo o arquivo ZIP com os frames extraídos.");
-                helper.addAttachment(nomeZip, new ByteArrayResource(zipBytes));
+                helper.addAttachment(nomeZip + ".zip", new ByteArrayResource(zipBytes));
             }else {
                 helper.setText("Ocorreu um erro no processamento do video e não foi possivel extrair os frames");
             }
 
             mailSender.send(mensagem);
+            log.info("Email enviado com sucesso!");
         } catch (MessagingException e) {
-            log.error(e.getMessage());
+            log.error("Falha no envio do email: {}" ,e.getMessage());
         }
 
     }

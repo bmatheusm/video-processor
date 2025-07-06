@@ -2,9 +2,9 @@ spring:
   application:
     name: video-processor
   datasource:
-    url: jdbc:postgresql://localhost:5432/hackaton
-    username: postgres
-    password: 1234
+    url: jdbc:postgresql://database-1.cluster-crzfgagwhurg.us-east-1.rds.amazonaws.com:5432/hackaton
+    username: ${POSTGRES_DB}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface JpaVideoFrameRepository extends JpaRepository<VideoFrameEntity, Long> {
-    Optional<VideoFrameEntity> findByNomeArquivo(String nomeArquivo);
+    Optional<VideoFrameEntity> findByS3VideoIdAndEmail(String videoId, String email);
 }
