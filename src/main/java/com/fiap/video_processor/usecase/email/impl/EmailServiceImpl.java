@@ -1,7 +1,6 @@
 package com.fiap.video_processor.usecase.email.impl;
 
 import com.fiap.video_processor.usecase.email.EmailService;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,7 @@ public class EmailServiceImpl implements EmailService {
             log.info("Enviando email de {} para {}", emailRemetente, para);
             mailSender.send(mensagem);
             log.info("Email enviado com sucesso!");
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Falha no envio do email: {}" ,e.getMessage());
         }
 
