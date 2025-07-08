@@ -2,8 +2,8 @@ spring:
   application:
     name: video-processor
   datasource:
-    url: jdbc:postgresql://database-1.cluster-crzfgagwhurg.us-east-1.rds.amazonaws.com:5432/hackaton
-    username: ${POSTGRES_DB}
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
@@ -14,20 +14,32 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   mail:
-    host: smtp.gmail.com
+    host: smtp-relay.brevo.com
     port: 587
-    username: hackatonfiap28@gmail.com
-    password: "cmlu vtnl jtcg wzrq"
+    username: ${USER_EMAIL}
+    password: ${PASSWORD_EMAIL}
+    protocol: smtp
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+          ssl:
+            enable: false
+          localhost: localhost.localdomain
+      mail.debug: true
+app:
+  mail:
+    from: ${EMAIL_REMETENTE}
 s3:
   bucket: videos-hackaton
 sqs:
   queue:
-    url: https://sqs.us-east-1.amazonaws.com/395368505712/video-processing-queue
+    url: ${SQS_QUEUE_URL}
+logging:
+  level:
+    org.springframework.mail: DEBUG
+    com.sun.mail.smtp: DEBUG
 server:
   port: 8090

@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,6 +18,9 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${app.mail.from}")
+    private String emailRemetente;
+
     @Override
     public void sendEmail(String para, byte[] zipBytes, String nomeZip) {
         try {
@@ -24,6 +28,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(mensagem, true);
             helper.setTo(para);
             helper.setSubject("Frames extraídos do vídeo");
+            helper.setFrom(emailRemetente);
 
             if (zipBytes.length > 0) {
                 helper.setText("Segue em anexo o arquivo ZIP com os frames extraídos.");
@@ -31,7 +36,7 @@ public class EmailServiceImpl implements EmailService {
             }else {
                 helper.setText("Ocorreu um erro no processamento do video e não foi possivel extrair os frames");
             }
-
+            log.info("Enviando email de {} para {}", emailRemetente, para);
             mailSender.send(mensagem);
             log.info("Email enviado com sucesso!");
         } catch (MessagingException e) {
