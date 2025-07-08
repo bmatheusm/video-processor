@@ -28,7 +28,6 @@ spring:
           ssl:
             enable: false
           localhost: localhost.localdomain
-      mail.debug: true
 app:
   mail:
     from: ${EMAIL_REMETENTE}
@@ -37,9 +36,5 @@ s3:
 sqs:
   queue:
     url: ${SQS_QUEUE_URL}
-logging:
-  level:
-    org.springframework.mail: DEBUG
-    com.sun.mail.smtp: DEBUG
 server:
   port: 8090
