@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -80,9 +81,10 @@ public class VideoProcessorImpl implements VideoProcessor {
                 throw new VideoProcessingException("Erro no ffmpeg: " + output);
             }
 
-            List<Path> frames = Files.list(workingDir)
-                    .filter(p -> p.toString().endsWith(".png"))
-                    .toList();
+            List<Path> frames;
+            try (Stream<Path> stream = Files.list(workingDir)) {
+                frames = stream.filter(p -> p.toString().endsWith(".png")).toList();
+            }
 
             if (frames.isEmpty()) {
                 throw new VideoProcessingException("Nenhum frame foi extraído do vídeo");
