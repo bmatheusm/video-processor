@@ -13,7 +13,7 @@ env:
   ECR_REPOSITORY: ${{secrets.ECR_REPOSITORY}}           # set this to your Amazon ECR repository name
   ECS_SERVICE: ${{secrets.ECS_SERVICE }}               # set this to your Amazon ECS service name
   ECS_CLUSTER: ${{secrets.ECS_CLUSTER}}                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: ${{secrets.ECS_TASK_DEFINITION}} # set this to the path to your Amazon ECS task definition
+  ECS_TASK_DEFINITION: ${{secrets.ECS_TASK_DEFINITION_PATH}} # set this to the path to your Amazon ECS task definition
   CONTAINER_NAME: ${{secrets.CONTAINER_NAME}}           # set this to the name of the container in the
 
 jobs:
@@ -32,12 +32,24 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=hackathon-fiap-9soat
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -50,9 +62,6 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build with Maven
-        run: mvn clean package
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
