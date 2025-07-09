@@ -7,6 +7,9 @@ on:
 
 env:
   AWS_REGION: ${{secrets.AWS_REGION}}                   # set this to your preferred AWS region, e.g. us-west-1
+  AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+  AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+  AWS_SESSION_TOKEN: ${{secrets.AWS_SESSION_TOKEN}}
   ECR_REPOSITORY: ${{secrets.ECR_REPOSITORY}}           # set this to your Amazon ECR repository name
   ECS_SERVICE: ${{secrets.ECS_SERVICE }}               # set this to your Amazon ECS service name
   ECS_CLUSTER: ${{secrets.ECS_CLUSTER}}                 # set this to your Amazon ECS cluster name
@@ -29,20 +32,20 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Cache SonarQube packages
+      - name: Cache Maven packages
         uses: actions/cache@v4
         with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-          aws-secret-access-key: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          aws-session-token: '${{ secrets.AWS_SESSION_TOKEN }}'
-          aws-region: '${{ secrets.AWS_REGION }}'
+          aws-access-key-id: '${{ env.AWS_ACCESS_KEY_ID }}'
+          aws-secret-access-key: '${{ env.AWS_SECRET_ACCESS_KEY }}'
+          aws-session-token: '${{ env.AWS_SESSION_TOKEN }}'
+          aws-region: '${{ env.AWS_REGION }}'
 
       - name: Login to Amazon ECR
         id: login-ecr

@@ -32,7 +32,7 @@ app:
   mail:
     from: ${EMAIL_REMETENTE}
 s3:
-  bucket: videos-hackaton
+  bucket: ${BUCKET}
 sqs:
   queue:
     url: ${SQS_QUEUE_URL}
