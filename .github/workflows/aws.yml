@@ -49,7 +49,7 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=hackathon-fiap-9soat
+        run: mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=hackathon-fiap-9soat_video-processor
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
